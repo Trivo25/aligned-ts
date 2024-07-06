@@ -1,0 +1,16 @@
+{
+  "name": "aligned-script",
+  "version": "0.0.1",
+  "description": "Aligned SDK in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  }
+}
