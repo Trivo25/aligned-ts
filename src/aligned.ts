@@ -1,18 +1,18 @@
 import { ethers } from "ethers";
 import { Constants } from "./constants.js";
 import {
+  Aligned,
   AlignedVerificationData,
   BatchInclusionData,
   ClientMessage,
-  ProtocolVersion,
   VerificationData,
   VerificationDataCommitment,
 } from "./types.js";
 import assert, { rejects } from "assert";
 import { openWebSocket } from "./ws.js";
 import WebSocket from "ws";
+import { Keccak } from "sha3";
 export { getAligned };
-export type { Aligned };
 
 const getAligned = (address?: string): Aligned => {
   let currentInstance = address ?? Constants.DefaultAddress;
@@ -23,32 +23,22 @@ const getAligned = (address?: string): Aligned => {
     setCurrentBatcherAddress: (address: string) => {
       currentInstance = address;
     },
-    submit: async (
-      batcherAddress: string,
-      verificationData: VerificationData,
-      wallet: ethers.Wallet
-    ) =>
-      (
-        await submitMultiple(
-          batcherAddress,
-          [verificationData],
-          wallet,
-          currentInstance
-        )
-      )[0],
+    submit: async (verificationData: VerificationData, wallet: ethers.Wallet) =>
+      (await submitMultiple([verificationData], wallet, currentInstance))[0],
     submitMultiple: (
-      batcherAddress: string,
       verificationData: Array<VerificationData>,
       wallet: ethers.Wallet
-    ) =>
-      submitMultiple(batcherAddress, verificationData, wallet, currentInstance),
+    ) => submitMultiple(verificationData, wallet, currentInstance),
     getExplorerLink: (batchMerkleRoot: string) =>
       `https://explorer.alignedlayer.com/batches/0x${batchMerkleRoot}`,
+    getVerificationKeyCommitment: (vk: Buffer) => {
+      const Hash = new Keccak(256);
+      return Hash.update(vk).digest("hex");
+    },
   };
 };
 
 const submitMultiple = async (
-  batcherAddress: string,
   verificationData: Array<VerificationData>,
   wallet: ethers.Wallet,
   instance: string
@@ -129,21 +119,4 @@ const receiveResponse = async (
       reject("Connection was closed because all data was received");
     };
   });
-};
-
-type Aligned = {
-  submit: (
-    batcherAddress: string,
-    verificationData: VerificationData,
-    wallet: ethers.Wallet
-  ) => Promise<AlignedVerificationData>;
-  submitMultiple: (
-    batcherAddress: string,
-    verificationData: Array<VerificationData>,
-    wallet: ethers.Wallet
-  ) => Promise<Array<AlignedVerificationData>>;
-  getDefaultBatcherAddress: () => string;
-  getCurrentBatcherAddress: () => string;
-  setCurrentBatcherAddress: (address: string) => void;
-  getExplorerLink: (batchMerkleRoot: string) => string;
 };

@@ -10,6 +10,23 @@ export {
   ClientMessage,
   BatchInclusionData,
   AlignedVerificationData,
+  Aligned,
+};
+
+type Aligned = {
+  submit: (
+    verificationData: VerificationData,
+    wallet: ethers.Wallet
+  ) => Promise<AlignedVerificationData>;
+  submitMultiple: (
+    verificationData: Array<VerificationData>,
+    wallet: ethers.Wallet
+  ) => Promise<Array<AlignedVerificationData>>;
+  getDefaultBatcherAddress: () => string;
+  getCurrentBatcherAddress: () => string;
+  setCurrentBatcherAddress: (address: string) => void;
+  getExplorerLink: (batchMerkleRoot: string) => string;
+  getVerificationKeyCommitment: (vk: Buffer) => string;
 };
 
 type Option<T> = {
