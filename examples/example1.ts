@@ -25,4 +25,6 @@ const data: VerificationData = {
 };
 
 const Alignment = getAligned();
-await Alignment.submitMultiple(batcherAddress, [data], wallet);
+const alignedData = await Alignment.submit(batcherAddress, data, wallet);
+console.log(alignedData);
+console.log(Alignment.getExplorerLink(alignedData.batchMerkleRoot));

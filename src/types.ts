@@ -1,6 +1,5 @@
 import * as ethers from "ethers";
 import { Keccak } from "sha3";
-import { serialize } from "v8";
 
 export {
   ProtocolVersion,
@@ -9,6 +8,8 @@ export {
   VerificationData,
   ProvingSystemId,
   ClientMessage,
+  BatchInclusionData,
+  AlignedVerificationData,
 };
 
 type Option<T> = {
@@ -147,6 +148,41 @@ const VerificationDataCommitment = {
       publicInputCommitment,
       provingSystemAuxDataCommitment,
       proofGeneratorAddr,
+    };
+  },
+};
+
+type AlignedVerificationData = {
+  verificationDataCommitment: VerificationDataCommitment;
+  batchMerkleRoot: string;
+  batchInclusionProof: InclusionProof;
+  indexInBatch: number;
+};
+const AlignedVerificationData = {
+  from(
+    verificationDataCommitment: VerificationDataCommitment,
+    data: BatchInclusionData
+  ): AlignedVerificationData {
+    return {
+      verificationDataCommitment,
+      ...data,
+    };
+  },
+};
+
+type InclusionProof = unknown; // TODO
+type BatchInclusionData = {
+  batchMerkleRoot: string;
+  batchInclusionProof: InclusionProof;
+  indexInBatch: number;
+};
+const BatchInclusionData = {
+  fromBuffer(data: Buffer) {
+    const json = JSON.parse(data.toString());
+    return {
+      batchMerkleRoot: Buffer.from(json.batch_merkle_root).toString("hex"),
+      batchInclusionProof: json.batch_inclusion_proof,
+      indexInBatch: Number(json.index_in_batch),
     };
   },
 };
