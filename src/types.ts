@@ -75,6 +75,7 @@ const ClientMessage = {
     const commitment = VerificationDataCommitment.fromData(verificationData);
     const commitmentBatch = VerificationCommitmentBatch.hash(commitment);
     const signature = wallet.signMessageSync(commitmentBatch);
+
     return {
       verificationData,
       signature: ethers.Signature.from(signature),
@@ -82,8 +83,8 @@ const ClientMessage = {
   },
   toString(data: ClientMessage) {
     const payload = {
-      verificationData: {
-        proving_system: "SP1", // TODO this is ugly
+      verification_data: {
+        proving_system: "Groth16Bn254", // TODO this is ugly
         proof: [...data.verificationData.proof],
         pub_input: data.verificationData.publicInput.isSome
           ? [...data.verificationData.publicInput.data!]
@@ -102,8 +103,8 @@ const ClientMessage = {
         v: data.signature.v,
       },
     };
-    console.log(JSON.stringify(JSON.stringify(payload.verificationData)));
-    return JSON.stringify(JSON.stringify(payload));
+
+    return JSON.stringify(payload);
   },
 };
 

@@ -1,9 +1,7 @@
 import { ethers } from "ethers";
 import { Constants } from "./constants.js";
 import { ClientMessage, ProtocolVersion, VerificationData } from "./types.js";
-import WebSocket from "ws";
 import assert, { rejects } from "assert";
-import { resolve } from "path";
 import { openWebSocket } from "./ws.js";
 
 export { getAligned };
@@ -41,12 +39,12 @@ const submitMultiple = async (
   let sentVerificationData = [];
   verificationData.forEach(async (data) => {
     const msg = ClientMessage.from(data, wallet);
-
-    console.log("sending");
+    ws.onmessage = (event: any) => {
+      console.log(event.data);
+    };
     ws.send(ClientMessage.toString(msg));
-    console.log("sent");
 
-    await new Promise((resolve) => setTimeout(resolve, 100000));
+    console.log("sent");
   });
 
   return true;
