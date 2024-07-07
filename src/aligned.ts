@@ -43,7 +43,7 @@ const submitMultiple = async (
     const msg = ClientMessage.from(data, wallet);
 
     console.log("sending");
-    ws.send(JSON.stringify(msg));
+    ws.send(ClientMessage.toString(msg));
     console.log("sent");
 
     await new Promise((resolve) => setTimeout(resolve, 100000));

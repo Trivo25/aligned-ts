@@ -1,5 +1,6 @@
 import * as ethers from "ethers";
 import { Keccak } from "sha3";
+import { serialize } from "v8";
 
 export {
   ProtocolVersion,
@@ -78,6 +79,31 @@ const ClientMessage = {
       verificationData,
       signature: ethers.Signature.from(signature),
     };
+  },
+  toString(data: ClientMessage) {
+    const payload = {
+      verificationData: {
+        proving_system: "SP1", // TODO this is ugly
+        proof: [...data.verificationData.proof],
+        pub_input: data.verificationData.publicInput.isSome
+          ? [...data.verificationData.publicInput.data!]
+          : null,
+        verification_key: data.verificationData.verificationKey.isSome
+          ? [...data.verificationData.verificationKey.data!]
+          : null,
+        vm_program_code: data.verificationData.vmProgramCode.isSome
+          ? [...data.verificationData.vmProgramCode.data!]
+          : null,
+        proof_generator_addr: data.verificationData.proofGeneratorAddress,
+      },
+      signature: {
+        r: data.signature.r,
+        s: data.signature.s,
+        v: data.signature.v,
+      },
+    };
+    console.log(JSON.stringify(JSON.stringify(payload.verificationData)));
+    return JSON.stringify(JSON.stringify(payload));
   },
 };
 
