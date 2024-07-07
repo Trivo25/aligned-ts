@@ -24,7 +24,11 @@ const data: VerificationData = {
   proofGeneratorAddress,
 };
 
+let provider = new ethers.AlchemyProvider("goerli");
+
 const Alignment = getAligned();
 const alignedData = await Alignment.submit(data, wallet);
-console.log(alignedData);
+//console.log(alignedData);
+
 console.log(Alignment.getExplorerLink(alignedData.batchMerkleRoot));
+const g = Alignment.verifyProofOnchain(alignedData, "devnet", provider);

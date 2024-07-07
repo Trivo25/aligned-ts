@@ -22,10 +22,15 @@ type Aligned = {
     verificationData: Array<VerificationData>,
     wallet: ethers.Wallet
   ) => Promise<Array<AlignedVerificationData>>;
+  verifyProofOnchain: (
+    verificationData: AlignedVerificationData,
+    chain: "devnet" | "holesky",
+    provide: ethers.Provider
+  ) => Promise<any>;
   getDefaultBatcherAddress: () => string;
   getCurrentBatcherAddress: () => string;
   setCurrentBatcherAddress: (address: string) => void;
-  getExplorerLink: (batchMerkleRoot: string) => string;
+  getExplorerLink: (batchMerkleRoot: Uint8Array) => string;
   getVerificationKeyCommitment: (vk: Buffer) => string;
 };
 
@@ -171,7 +176,7 @@ const VerificationDataCommitment = {
 
 type AlignedVerificationData = {
   verificationDataCommitment: VerificationDataCommitment;
-  batchMerkleRoot: string;
+  batchMerkleRoot: Uint8Array;
   batchInclusionProof: InclusionProof;
   indexInBatch: number;
 };
@@ -189,7 +194,7 @@ const AlignedVerificationData = {
 
 type InclusionProof = unknown; // TODO
 type BatchInclusionData = {
-  batchMerkleRoot: string;
+  batchMerkleRoot: Uint8Array;
   batchInclusionProof: InclusionProof;
   indexInBatch: number;
 };
@@ -197,7 +202,7 @@ const BatchInclusionData = {
   fromBuffer(data: Buffer) {
     const json = JSON.parse(data.toString());
     return {
-      batchMerkleRoot: Buffer.from(json.batch_merkle_root).toString("hex"),
+      batchMerkleRoot: json.batch_merkle_root,
       batchInclusionProof: json.batch_inclusion_proof,
       indexInBatch: Number(json.index_in_batch),
     };

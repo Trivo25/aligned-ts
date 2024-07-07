@@ -12,6 +12,9 @@ import assert, { rejects } from "assert";
 import { openWebSocket } from "./ws.js";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
+import ContractAbi = require("../abi/AlignedLayerServiceManager.json");
+import { Wallet } from "ethers";
+
 export { getAligned };
 
 const getAligned = (address?: string): Aligned => {
@@ -29,13 +32,46 @@ const getAligned = (address?: string): Aligned => {
       verificationData: Array<VerificationData>,
       wallet: ethers.Wallet
     ) => submitMultiple(verificationData, wallet, currentInstance),
-    getExplorerLink: (batchMerkleRoot: string) =>
-      `https://explorer.alignedlayer.com/batches/0x${batchMerkleRoot}`,
+    getExplorerLink: (batchMerkleRoot: Uint8Array) =>
+      `https://explorer.alignedlayer.com/batches/0x${Buffer.from(
+        batchMerkleRoot
+      ).toString("hex")}`,
     getVerificationKeyCommitment: (vk: Buffer) => {
       const Hash = new Keccak(256);
       return Hash.update(vk).digest("hex");
     },
+    verifyProofOnchain,
   };
+};
+
+const verifyProofOnchain = async (
+  verificationData: AlignedVerificationData,
+  chain: "devnet" | "holesky" = "holesky",
+  provider: ethers.Provider
+) => {
+  const contractAddress =
+    chain === "devnet"
+      ? "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
+      : "0x58F280BeBE9B34c9939C3C39e0890C81f163B623";
+  const contract = new ethers.Contract(
+    contractAddress,
+    ContractAbi.abi,
+    provider
+  );
+  const verifyBatchInclusion = await contract.getFunction(
+    "verifyBatchInclusion"
+  );
+
+  const result: boolean = await verifyBatchInclusion.call(
+    verificationData.verificationDataCommitment.proofCommitment,
+    verificationData.verificationDataCommitment.publicInputCommitment,
+    verificationData.verificationDataCommitment.provingSystemAuxDataCommitment,
+    verificationData.verificationDataCommitment.proofGeneratorAddr,
+    verificationData.batchMerkleRoot,
+    [], // TODO,
+    verificationData.indexInBatch
+  );
+  return result;
 };
 
 const submitMultiple = async (
