@@ -14,23 +14,56 @@ export {
 };
 
 type Aligned = {
+  /**
+   * Submits a single verification data to the batcher for verification.
+   * @param verificationData - verification data to verify
+   * @param wallet - wallet that will be used to sign the data
+   */
   submit: (
     verificationData: VerificationData,
     wallet: ethers.Wallet
   ) => Promise<AlignedVerificationData>;
+  /**
+   * Submits an array of verification data to the batcher for verification.
+   * @param verificationData - Array of verification data to verify
+   * @param wallet - wallet that will be used to sign the data
+   */
   submitMultiple: (
     verificationData: Array<VerificationData>,
     wallet: ethers.Wallet
   ) => Promise<Array<AlignedVerificationData>>;
+  /**
+   * Verifies that a proof in a batch has been verified on Ethereum.
+   * @param verificationData - verification data as returned by the batcher
+   * @param chain - either devnet or holesky
+   * @param provider - ethers provider that will be used to check Ethereum
+   */
   verifyProofOnchain: (
     verificationData: AlignedVerificationData,
     chain: "devnet" | "holesky",
-    provide: ethers.Provider
-  ) => Promise<any>;
+    provider: ethers.Provider
+  ) => Promise<boolean>;
+  /**
+   * Gets the default batcher (websocket) address.
+   */
   getDefaultBatcherAddress: () => string;
+  /**
+   * Gets the currently set batcher (websocket) address.
+   */
   getCurrentBatcherAddress: () => string;
+  /**
+   * Sets the current batcher (websocket) address.
+   * @param address - New address
+   */
   setCurrentBatcherAddress: (address: string) => void;
+  /**
+   * Given a merkle root of a batch, returns the link to the explorer.
+   */
   getExplorerLink: (batchMerkleRoot: Uint8Array) => string;
+  /**
+   * Calculates the verification key commitment.
+   * @param vk - Verification key in the form of a Buffer
+   */
   getVerificationKeyCommitment: (vk: Buffer) => string;
 };
 
@@ -94,7 +127,6 @@ type VerificationData = {
 const VerificationCommitmentBatch = {
   hash(data: VerificationDataCommitment) {
     const Hash = new Keccak(256);
-
     Hash.update(Buffer.from(data.proofCommitment));
     Hash.update(Buffer.from(data.publicInputCommitment));
     Hash.update(Buffer.from(data.provingSystemAuxDataCommitment));

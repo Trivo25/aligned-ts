@@ -9,7 +9,7 @@ import {
   VerificationData,
   VerificationDataCommitment,
 } from "./types.js";
-import assert, { rejects } from "assert";
+import assert from "assert";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
 import { verifyMerklePath } from "./merkle-proof.js";
@@ -17,6 +17,11 @@ import { verifyProofOnchain } from "./eth.js";
 
 export { getAligned };
 
+/**
+ * Creates an instance of an interaction with Aligned layer.
+ * This object will be used to interact with Aligned Layer, sent data for verification and check response.
+ * @param address - optional (websocket) address of the batcher
+ */
 const getAligned = (address?: string): Aligned => {
   let currentInstance = address ?? Constants.DefaultAddress;
 
@@ -71,9 +76,6 @@ const submitMultiple = async (
 
   // send data to batcher
   preparedData.forEach((data) => ws.send(ClientMessage.toString(data)));
-
-  console.log("sent all verification data");
-  console.log("awaiting reponse");
 
   const receivedData = await receivePromise;
   assert(
