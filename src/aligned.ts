@@ -12,7 +12,7 @@ import {
 import assert, { rejects } from "assert";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
-import ContractAbi from "../abi/AlignedLayerServiceManager.json";
+import ContractAbi from "../abi/AlignedLayerServiceManager.json" with { type: "json" };;
 
 export { getAligned };
 
