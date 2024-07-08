@@ -13,6 +13,7 @@ Aligned TS is the TypeScript equivalent of the Aligned Layer Rust SDK.
 - [Table of Contents](#table-of-contents)
 - [Getting Started](#getting-started)
   - [Installation Documentation](#installation-documentation)
+  - [Install using NPM](#install-using-npm)
   - [Build locally](#build-locally)
   - [API Reference](#api-reference)
   - [Example](#example)
@@ -23,6 +24,12 @@ AlignedTS is the TypeScript equivalent of the Aligned Layer Rust SDK.
 It implements all the necessary communication with the Batcher, commitment of data verification data blobs and handles the Batchers response.
 
 ### Installation Documentation
+
+### Install using NPM
+
+The package is available on [npm](https://www.npmjs.com/package/aligned-ts).
+
+`npm i aligned-ts`
 
 ### Build locally
 
