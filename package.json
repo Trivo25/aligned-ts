@@ -1,6 +1,6 @@
 {
   "name": "aligned-ts",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Aligned SDK in TypeScript",
   "main": "index.js",
   "type": "module",
