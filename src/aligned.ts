@@ -12,7 +12,9 @@ import {
 import assert, { rejects } from "assert";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
-import ContractAbi from "../abi/AlignedLayerServiceManager.json" with { type: "json" };;
+import { verifyMerklePath } from "./merkle-proof.js";
+
+import ContractAbi from "../abi/AlignedLayerServiceManager.json" with { type: "json" };
 
 export { getAligned };
 
@@ -116,8 +118,14 @@ const submitMultiple = async (
   receivedData.forEach((data) => {
     const commitment = reverseCommitments.pop()!;
 
-    const verified = verifyResponse(commitment, data);
-    if (verified)
+    if (
+      verifyMerklePath(
+        data.batchInclusionProof.merkle_path,
+        data.batchMerkleRoot,
+        data.indexInBatch,
+        commitment
+      )
+    )
       alignedVerificationData.push(
         AlignedVerificationData.from(commitment, data)
       );
@@ -126,14 +134,6 @@ const submitMultiple = async (
   // all data received and set, we should be done here
   ws.close();
   return alignedVerificationData;
-};
-
-const verifyResponse = (
-  commitment: VerificationDataCommitment,
-  batchInclusionProof: BatchInclusionData
-) => {
-  // TODO: check merkle tree and inclusion proof
-  return true;
 };
 
 const receiveResponse = async (

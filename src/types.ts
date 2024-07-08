@@ -191,6 +191,14 @@ const VerificationDataCommitment = {
       proofGeneratorAddr,
     };
   },
+  hashData(data: VerificationDataCommitment) {
+    const Hash = new Keccak(256);
+    Hash.update(Buffer.from(data.proofCommitment));
+    Hash.update(Buffer.from(data.publicInputCommitment));
+    Hash.update(Buffer.from(data.provingSystemAuxDataCommitment));
+    Hash.update(Buffer.from(data.proofGeneratorAddr));
+    return Hash.digest();
+  },
 };
 
 type AlignedVerificationData = {
@@ -211,7 +219,9 @@ const AlignedVerificationData = {
   },
 };
 
-type InclusionProof = unknown; // TODO
+type InclusionProof = {
+  merkle_path: Array<Uint8Array>;
+};
 type BatchInclusionData = {
   batchMerkleRoot: Uint8Array;
   batchInclusionProof: InclusionProof;
