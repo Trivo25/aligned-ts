@@ -13,8 +13,7 @@ import assert, { rejects } from "assert";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
 import { verifyMerklePath } from "./merkle-proof.js";
-
-import ContractAbi from "../abi/AlignedLayerServiceManager.json" with { type: "json" };
+import { verifyProofOnchain } from "./eth.js";
 
 export { getAligned };
 
@@ -43,37 +42,6 @@ const getAligned = (address?: string): Aligned => {
     },
     verifyProofOnchain,
   };
-};
-
-const verifyProofOnchain = async (
-  verificationData: AlignedVerificationData,
-  chain: "devnet" | "holesky" = "holesky",
-  provider: ethers.Provider
-) => {
-  const contractAddress =
-    chain === "devnet"
-      ? "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
-      : "0x58F280BeBE9B34c9939C3C39e0890C81f163B623";
-  const contract = new ethers.Contract(
-    contractAddress,
-    ContractAbi.abi,
-    provider
-  );
-  const verifyBatchInclusion = await contract.getFunction(
-    "verifyBatchInclusion"
-  );
-
-  const result: boolean = await verifyBatchInclusion.call(
-    verificationData.verificationDataCommitment.proofCommitment,
-    verificationData.verificationDataCommitment.publicInputCommitment,
-    verificationData.verificationDataCommitment.provingSystemAuxDataCommitment,
-    verificationData.verificationDataCommitment.proofGeneratorAddr,
-    verificationData.batchMerkleRoot,
-    [], // TODO,
-    verificationData.indexInBatch
-  );
-  throw Error("Not yet fully implemented");
-  return result;
 };
 
 const submitMultiple = async (
