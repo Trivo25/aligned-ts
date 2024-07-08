@@ -2,9 +2,9 @@ import { ethers } from "ethers";
 import { before, describe, it } from "node:test";
 import {
   ProvingSystemId,
-  VerificationData,
   getAligned,
   Option,
+  VerificationData,
 } from "../src/index.js";
 import fs from "fs";
 import assert from "assert";
@@ -42,8 +42,46 @@ describe("", () => {
       };
 
       const Alignment = getAligned();
-      const alignedData = await Alignment.submitMultiple([groth16Data], wallet);
-      assert(alignedData.length === 1, "Invalid response length");
+      const alignedData = await Alignment.submitMultiple(
+        [groth16Data, groth16Data],
+        wallet
+      );
+      assert(alignedData.length === 2, "Invalid response length");
+    });
+  });
+
+  describe("Send Sp1 proof", () => {
+    let proof: Buffer,
+      elf: Buffer,
+      proofGeneratorAddress: string,
+      wallet: ethers.Wallet;
+
+    before(() => {
+      proof = fs.readFileSync("test_files/sp1/sp1_fibonacci.proof", null);
+      elf = fs.readFileSync("test_files/sp1/sp1_fibonacci.elf", null);
+
+      proofGeneratorAddress = "0x66f9664f97F2b50F62D13eA064982f936dE76657";
+      wallet = new ethers.Wallet(
+        "0x7d2647ad2e1f6c1dce5abe2b5c3b9c8ecfe959e40b989d531bbf6624ff1c62df"
+      );
+    });
+
+    it("submitMultiple", async () => {
+      let sp1Data: VerificationData = {
+        provingSystem: ProvingSystemId.SP1,
+        proof,
+        publicInput: Option.None,
+        verificationKey: Option.None,
+        vmProgramCode: Option.from(elf),
+        proofGeneratorAddress,
+      };
+
+      const Alignment = getAligned();
+      const alignedData = await Alignment.submitMultiple(
+        [sp1Data, sp1Data],
+        wallet
+      );
+      assert(alignedData.length === 2, "Invalid response length");
     });
   });
 });

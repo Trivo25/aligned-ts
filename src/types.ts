@@ -60,8 +60,25 @@ const ProvingSystemId = {
   Halo2KZG: 4,
   Halo2IPA: 5,
   Risc0: 6,
-  fromString: (provingSystem: string) => {
-    throw Error("TODO");
+  toString: (id: number) => {
+    switch (id) {
+      case 0:
+        return "GnarkPlonkBls12_381";
+      case 1:
+        return "GnarkPlonkBn254";
+      case 2:
+        return "Groth16Bn254";
+      case 3:
+        return "SP1";
+      case 4:
+        return "Halo2IPA";
+      case 5:
+        return "Halo2KZG";
+      case 6:
+        return "Risc0";
+      default:
+        throw Error("Unsupported proof system ID");
+    }
   },
 };
 
@@ -107,7 +124,9 @@ const ClientMessage = {
   toString(data: ClientMessage) {
     const payload = {
       verification_data: {
-        proving_system: "Groth16Bn254", // TODO this is ugly
+        proving_system: ProvingSystemId.toString(
+          data.verificationData.provingSystem
+        ),
         proof: [...data.verificationData.proof],
         pub_input: data.verificationData.publicInput.isSome
           ? [...data.verificationData.publicInput.data!]
