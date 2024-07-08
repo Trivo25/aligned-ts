@@ -5,15 +5,14 @@ import {
   AlignedVerificationData,
   BatchInclusionData,
   ClientMessage,
+  ProtocolVersion,
   VerificationData,
   VerificationDataCommitment,
 } from "./types.js";
 import assert, { rejects } from "assert";
-import { openWebSocket } from "./ws.js";
 import WebSocket from "ws";
 import { Keccak } from "sha3";
-import ContractAbi = require("../abi/AlignedLayerServiceManager.json");
-import { Wallet } from "ethers";
+import ContractAbi from "../abi/AlignedLayerServiceManager.json";
 
 export { getAligned };
 
@@ -153,6 +152,32 @@ const receiveResponse = async (
     };
     ws.onclose = (event: WebSocket.CloseEvent) => {
       reject("Connection was closed because all data was received");
+    };
+  });
+};
+
+const openWebSocket = (address: string): Promise<WebSocket> => {
+  return new Promise(function (resolve, reject) {
+    const ws = new WebSocket(address);
+
+    ws.onmessage = (event: WebSocket.MessageEvent) => {
+      assert(event.data instanceof Buffer, "Protocol currently not supported");
+      const expectedProtocolVersion = ProtocolVersion.fromBytesBuffer(
+        event.data
+      );
+      assert(
+        Constants.ProtocolVersion === expectedProtocolVersion,
+        `Unsupported Protocol version. Supported ${Constants.ProtocolVersion} but got ${expectedProtocolVersion}`
+      );
+      resolve(ws);
+    };
+    ws.onerror = (data: WebSocket.ErrorEvent) => {
+      reject(
+        `Cannot connect to ${address}, received error ${data.error} - ${data.message}`
+      );
+    };
+    ws.onclose = (event: WebSocket.CloseEvent) => {
+      console.error("Closed", event.reason);
     };
   });
 };
