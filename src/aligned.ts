@@ -70,6 +70,7 @@ const verifyProofOnchain = async (
     [], // TODO,
     verificationData.indexInBatch
   );
+  throw Error("Not yet fully implemented");
   return result;
 };
 
